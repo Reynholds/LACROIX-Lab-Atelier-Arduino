@@ -90,3 +90,7 @@ Afin de tester la carte Arduino, nous allons commencer par faire clignoter la LE
   Fichier > Exemples > 01.Basics > Blink
 	
   Cela permet d'afficher un programme permettant de faire clignoter la LED.
+  
+5- Transfert ton programme dans la carte Arduino
+	Croquis > Téléverser, la LED du Arduino devrait commencer à clignoter !
+
