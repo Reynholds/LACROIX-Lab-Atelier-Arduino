@@ -1,4 +1,4 @@
-#LACROIX-Lab-Atelier-Arduino
+# LACROIX-Lab-Atelier-Arduino
 Sources et schéma de l'atelier Arduino #1
 
 Bienvenu dans cet atelier de prototypage rapide de conception d'un capteur de pression autonome LPWAN.
@@ -27,19 +27,19 @@ Les effets recherchés sont de saisir l'occasion de monter en compétence en pro
 
 ```
 
-##Logiciels nécessaires
-###Pour la programmation de notre objet
+## Logiciels nécessaires
+### Pour la programmation de notre objet
 ````
 Le logiciel de programmation d'Arduino :  https://www.arduino.cc/en/Main/Software
 Logiciel de visualisation de schéma :     http://fritzing.org/download/
 ````
-###Pour la visualisation des données
+### Pour la visualisation des données
 ````
 Power BI : https://powerbi.microsoft.com/fr-fr/downloads/
 ````
 
-#Arduino
-##Qu'est-ce qu'un Arduino (https://www.arduino.cc/en/Guide/Introduction#)
+# Arduino
+## Qu'est-ce qu'un Arduino (https://www.arduino.cc/en/Guide/Introduction#)
 Un arduino est une carte électronique Open-Source, permettant de faire du développement électronique (Hardware) et logiciel (software) très facilement, comme lire l'état d'un 'bouton' en temps réel et agir sur une 'led', mais aussi lire la valeur d'un capteur de pression et poster un message sur le web.
 
 Pour faire cela, il est possible de programmer le microcontroleur de la carte Arduino, en envoyant des instructions écrites dans un langage compréhensible par l'Arduino à l'aide de l'environnement de développement associé (IDE).
@@ -51,9 +51,9 @@ Il existe plusieurs types de carte Arduino, ayant plus ou moins de performance e
 Il existe aussi plusieurs type de carte de fournisseurs différents basée sur de l'arduino et fonctionnant donc avec l'environnement de développement Arduino.
 Dans notre cas nous utiliserons la carte MKRFOX1200 intégrant directement une connectivité Sigfox et la carte MKR WAN 1300 intégrant une connectivité LoRa.
 
-##Pourquoi Arduino ?
+## Pourquoi Arduino ?
 Les cartes Arduinos sont simples et accessibles aux débutants d'où l'utilisation dominante de ces cartes par les étudiants, lors des  hackatons ou par les bidouilleurs du dimanche :)
 Même si les cartes Arduino, sont certainement moins performantes que certaines de leurs concurrentes comme les Nucleos de ST, elles sont destinées à un public plus large.
 
-##Comment utiliser une carte Arduino
+## Comment utiliser une carte Arduino
 
