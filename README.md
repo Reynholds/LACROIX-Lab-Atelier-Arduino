@@ -78,18 +78,18 @@ Afin de tester la carte Arduino, nous allons commencer par faire clignoter la LE
 
 2- Sélectionne le modèle de ta carte 
 
-  Outils > Type de cartes > Arduino MKR (WAN ou FOX)
+	Outils > Type de cartes > Arduino MKR (WAN ou FOX)
   
 3- Connecter et vérifier que la carte Arduino soit bien reconnue par PC à l'aide du câble micro-usb, "la LED verte devrait s'allumer, signifiant que la carte est sous tension"
 
-  Outils > Port : "COMXX (Arduino MKR XXX)", sinon sélectionner le port qui contient le nom de la carte Arduino
+	Outils > Port : "COMXX (Arduino MKR XXX)", sinon sélectionner le port qui contient le nom de la carte Arduino
   
   ### Astuce
   Il se peut que la carte ne soit pas reconnue, appuyer alors 3 fois successivement sur le bouton Reset (RST) de la carte
   
 4- Récupération d'un programme pour faire clignoter la LED
 
-  Fichier > Exemples > 01.Basics > Blink
+	Fichier > Exemples > 01.Basics > Blink
 	
   Cela permet d'afficher un programme permettant de faire clignoter la LED.
   
