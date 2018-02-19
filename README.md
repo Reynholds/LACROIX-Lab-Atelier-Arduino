@@ -63,6 +63,7 @@ Même si les cartes Arduino, sont certainement moins performantes que certaines 
 1- télécharge et installe Arduino 1.8.5, ainsi que tous les drivers demandés durant l'installation (Arduino USB Driver, ...)
 
 2- Installation des modules nécessaires aux cartes MKR Fox et MKR Wan
+
   Via Outils > Type de cartes > Gestionnaire de carte
   
   Chercher "WAN" > Sélectionne et installe "Arduino SAMD Boards (32 bits ARM Cortex -M0+)by Arduino", ainsi que les drivers proposés lors de l'installation (Arduino USB Driver for SAMD boards)
@@ -76,6 +77,7 @@ Afin de tester la carte Arduino, nous allons commencer par faire clignoter la LE
 1- Démarre Arduino 1.8.5 
 
 2- Sélectionne le modèle de ta carte 
+
   Outils > Type de cartes > Arduino MKR (WAN ou FOX)
   
 3- Connecter et vérifier que la carte Arduino soit bien reconnue par PC à l'aide du câble micro-usb, "la LED verte devrait s'allumer, signifiant que la carte est sous tension"
@@ -92,5 +94,6 @@ Afin de tester la carte Arduino, nous allons commencer par faire clignoter la LE
   Cela permet d'afficher un programme permettant de faire clignoter la LED.
   
 5- Transfert ton programme dans la carte Arduino
+
 	Croquis > Téléverser, la LED du Arduino devrait commencer à clignoter !
 
