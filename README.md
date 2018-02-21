@@ -174,5 +174,14 @@ Il existe une façon de récupérer les sources plus propice à la collaboration
 
 
 # Répertoire de travail
-Dans notre répertoire, il 
+## Le dossier Embarquement
+Contient les éléments nécessaires pour prendre en main la carte Arduino, lui ajouter le capteur de pression et la connecter à son Back-end.
 
+## Le dossier Décollage
+Intégration des éléments dans la boite et 
+
+## Le dossier "Dans les Nuages"
+Vérification des données dans le Cloud Azure
+
+## Atterrissage
+Visualisation des données sur Power BI
