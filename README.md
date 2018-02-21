@@ -13,7 +13,7 @@ L'idée est ici de prototyper deux types de capteurs :
 Les effets recherchés sont de saisir l'occasion de monter en compétence en prototypage rapide et d'utiliser les technos LPWAN.
 
 
-## Matériels Prototypage
+## Matériel Prototypage
 ```
 1x Arduino Lora ou Sigfox
 1x Capteur CNPR
@@ -32,6 +32,7 @@ Les effets recherchés sont de saisir l'occasion de monter en compétence en pro
 
 Le logiciel de programmation d'Arduino :  https://www.arduino.cc/en/Main/Software
 > La version qui nous intéresse est Arduino IDE 1.8.5
+
 Logiciel de visualisation de schéma :     http://fritzing.org/download/
 > Servira principalement à ceux qui souhaite modifier le câblage
 
