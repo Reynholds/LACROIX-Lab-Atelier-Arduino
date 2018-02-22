@@ -33,7 +33,7 @@ Les effets recherchés sont de saisir l'occasion de monter en compétence en pro
 Le logiciel de programmation d'Arduino :  https://www.arduino.cc/en/Main/Software
 > La version qui nous intéresse est Arduino IDE 1.8.5
 
-Logiciel de visualisation de schéma :     http://fritzing.org/download/
+Logiciel de création de schéma de câblage :     http://fritzing.org/download/
 > Servira principalement à ceux qui souhaite modifier le câblage
 
 ### Pour la visualisation des données
