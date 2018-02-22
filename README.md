@@ -42,7 +42,7 @@ Power BI : https://powerbi.microsoft.com/fr-fr/downloads/
 
 
 # Arduino (https://www.arduino.cc/en/Guide/Introduction#)
-## Qu'est-ce qu'un Arduino 
+## Qu'est-ce qu'un Arduino ?
 Un arduino est une carte électronique Open-Source, permettant de faire du développement électronique (Hardware) et logiciel (software) très facilement, comme lire l'état d'un 'bouton' en temps réel et agir sur une 'led', mais aussi lire la valeur d'un capteur de pression et poster un message sur le web.
 
 Pour faire cela, il est possible de programmer le microcontroleur de la carte Arduino, en envoyant des instructions écrites dans un langage compréhensible par l'Arduino à l'aide de l'environnement de développement associé (IDE).
@@ -61,7 +61,7 @@ Même si les cartes Arduino, sont certainement moins performantes que certaines 
 # Préparation de notre environnement de travail
 ## Installation du logiciel Arduino
 
-1- télécharge et installe Arduino 1.8.5, ainsi que tous les drivers demandés durant l'installation (Arduino USB Driver, ...)
+1- Télécharge et installe Arduino 1.8.5, ainsi que tous les drivers demandés durant l'installation (Arduino USB Driver, ...)
 
 2- Installation des modules nécessaires aux cartes MKR Fox et MKR Wan
 
@@ -157,8 +157,8 @@ void loop() {
 ````
 
 
-## Fade
-En utilisant la même méthode, mets en place le programme Fade dans l'arduino
+## Fade (Variation d'intensité de la LED)
+En utilisant la même méthode, mets en place le programme Fade dans l'arduino, présent dans la bibliothèque
 ### Astuce : la Led intégrée sur la carte n'est pas forcément la numéro 9, mais est toujours la "LED_BUILTIN"
 
 # Github
@@ -175,10 +175,10 @@ Il existe une façon de récupérer les sources plus propice à la collaboration
 
 # Répertoire de travail
 ## Le dossier Embarquement
-Contient les éléments nécessaires pour prendre en main la carte Arduino, lui ajouter le capteur de pression et la connecter à son Back-end.
+Contient les éléments nécessaires pour prendre en main la carte Arduino, lui ajouter le capteur de pression et la connecter à son Back-end (LoRa ou Sigfox).
 
 ## Le dossier Décollage
-Intégration des éléments dans la boite et 
+Intégration des éléments dans la boite
 
 ## Le dossier "Dans les Nuages"
 Vérification des données dans le Cloud Azure
