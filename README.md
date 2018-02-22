@@ -69,7 +69,15 @@ Même si les cartes Arduino, sont certainement moins performantes que certaines 
   
   Chercher "WAN" > Sélectionne et installe "Arduino SAMD Boards (32 bits ARM Cortex -M0+)by Arduino", ainsi que les drivers proposés lors de l'installation (Arduino USB Driver for SAMD boards)
   
-3- Tout est prêt pour continuer
+3- Installation de la bibliothèque d'exemple LPWAN
+	
+	Via Croquis > Inclure une bibliothèque > Gérer les bibliothèques, Chercher et installer les bibliothèques :
+	- "Arduino Sigfox for MKRFox1200"
+	- "MKRWAN" 
+	- "Arduino Low Power"
+	- "RTCZero"
+
+4- Tout est prêt pour continuer
 
 # Prise en main Arduino IDE
 ## Hello blink
@@ -160,6 +168,9 @@ void loop() {
 ## Fade (Variation d'intensité de la LED)
 En utilisant la même méthode, mets en place le programme Fade dans l'arduino, présent dans la bibliothèque
 ### Astuce : la Led intégrée sur la carte n'est pas forcément la numéro 9, mais est toujours la "LED_BUILTIN"
+
+# Pour bidouiller
+Essayer donc de faire un clignotant avec une variation d'intensité :)
 
 # Github
 GitHub est une plateforme de partage de "codes sources" soit de tout éléments permetant de reproduire un projet.
