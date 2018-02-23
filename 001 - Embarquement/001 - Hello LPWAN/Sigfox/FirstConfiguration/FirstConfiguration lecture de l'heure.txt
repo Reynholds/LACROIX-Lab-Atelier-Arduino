@@ -1,0 +1,248 @@
+/*
+  SigFox First Configuration
+
+  This sketch demonstrates the usage of MKRFox1200 SigFox module.
+  Since the board is designed with low power in mind, it depends directly on ArduinoLowPower library
+
+  This example code is in the public domain.
+*/
+
+#include <RTCZero.h>
+#include <SigFox.h>
+#include <ArduinoLowPower.h>
+
+/* Defined what is a date */
+struct Date{
+  int _jour;
+  int _mois;
+  int _annee;
+  int _heure;
+  int _minute;
+  int _seconde;
+  String DateString;
+};
+
+/* Create an rtc object */
+RTCZero rtc;
+
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) {};
+
+  // Uncomment this line and comment begin() if you are working with a custom board
+  //if (!SigFox.begin(SPI1, 30, 31, 33, 28, LED_BUILTIN)) {
+  if (!SigFox.begin()) {
+    Serial.println("Shield error or not present!");
+    return;
+  }
+  // Enable debug led and disable automatic deep sleep
+  // Comment this line when shipping your project :)
+  SigFox.debug();
+
+  String version = SigFox.SigVersion();
+  String ID = SigFox.ID();
+  String PAC = SigFox.PAC();
+
+  // Display module informations
+  Serial.println("MKRFox1200 Sigfox first configuration");
+  Serial.println("SigFox FW version " + version);
+  Serial.println("ID  = " + ID);
+  Serial.println("PAC = " + PAC);
+
+  Serial.println("");
+
+  Serial.print("Module temperature: ");
+  Serial.println(SigFox.internalTemperature());
+
+  Serial.println("Register your board on https://backend.sigfox.com/activate with provided ID and PAC");
+
+  delay(100);
+
+  // Send the module to the deepest sleep
+  SigFox.end();
+
+  Serial.println("Type the message to be sent");
+  while (!Serial.available());
+
+  String message;
+  while (Serial.available()) {
+    message += (char)Serial.read();
+  }
+
+  // Every SigFox packet cannot exceed 12 bytes
+  // If the string is longer, only the first 12 bytes will be sent
+
+  if (message.length() > 12) {
+    Serial.println("Message too long, only first 12 bytes will be sent");
+  }
+
+  Serial.println("Sending " + message);
+
+  // Remove EOL
+  message.trim();
+
+  // Example of message that can be sent
+  // sendString(message);
+
+  Serial.println("Getting the response will take up to 50 seconds");
+  Serial.println("The LED will blink while the operation is ongoing");
+
+  // Example of send and read response
+  sendStringAndGetResponse(message);
+}
+
+void loop()
+{
+}
+
+void sendString(String str) {
+  // Start the module
+  SigFox.begin();
+  // Wait at least 30mS after first configuration (100mS before)
+  delay(100);
+  // Clears all pending interrupts
+  SigFox.status();
+  delay(1);
+
+  SigFox.beginPacket();
+  SigFox.print(str);
+
+  int ret = SigFox.endPacket();  // send buffer to SIGFOX network
+  if (ret > 0) {
+    Serial.println("No transmission");
+  } else {
+    Serial.println("Transmission ok");
+  }
+
+  Serial.println(SigFox.status(SIGFOX));
+  Serial.println(SigFox.status(ATMEL));
+  SigFox.end();
+}
+
+void sendStringAndGetResponse(String str) {
+
+  int nb_byte=0;
+  String S_Timestamp ="";
+  unsigned long l_Timestamp=0;
+  
+  //Remove EOL
+  str.trim();
+  
+  // Start the module
+  SigFox.begin();
+  // Wait at least 30mS after first configuration (100mS before)
+  delay(100);
+  // Clears all pending interrupts
+  SigFox.status();
+  delay(1);
+
+  SigFox.beginPacket();
+  SigFox.print(str);
+
+  int ret = SigFox.endPacket(true);  // send buffer to SIGFOX network and wait for a response
+  if (ret > 0) {
+    Serial.println("No transmission");
+  } else {
+    Serial.println("Transmission ok");
+  }
+
+  Serial.println(SigFox.status(SIGFOX));
+  Serial.println(SigFox.status(ATMEL));
+
+  
+  if (SigFox.parsePacket()) {
+    Serial.println("Response from server:");
+    while (SigFox.available()) {
+      while (nb_byte<=3)
+      {
+        //S_Timestamp = S_Timestamp + String(SigFox.read(), HEX);
+        l_Timestamp = (SigFox.read() * pow(256,(3-nb_byte)))+l_Timestamp;
+        //Serial.println(l_Timestamp);
+        nb_byte ++;
+      }
+      Serial.print("0x");
+      Serial.println(SigFox.read(), HEX);
+      
+    }
+    SigFox.end();
+      //Récupération de la date et de l'heure
+      timestampToDate(l_Timestamp);
+      
+  } else {
+    Serial.println("Could not get any response from the server");
+    Serial.println("Check the SigFox coverage in your area");
+    Serial.println("If you are indoor, check the 20dB coverage or move near a window");
+    SigFox.end();
+  }
+
+  
+}
+
+String Right(String str, int count)
+{
+  return str.substring(str.length()-count);
+}
+
+String Left(String str, int count)
+{
+  return str.substring(1,count+1);
+}
+
+void timestampToDate (unsigned long t)
+{
+  Date madate;
+  float jourtoAdd, hourstoAdd;
+  int jour = 1;
+  int mois = 1;
+  int annee= 2017;
+  int JourMois[13]= {12 ,31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  int monHeure, mesMinutes, mesSecondes;
+  
+  // 1er Janvier 2017 = 17167 jour depuis 01/01/1970
+  jourtoAdd = t - 1483228800;
+  jourtoAdd = (float) jourtoAdd /60.0/60.0/24.0;
+  
+  // Nombre de jour depuis le 01 Janvier 2017
+  //Serial.println(String(jourtoAdd,DEC));
+
+  // Calcul des heures
+  // 1er Janvier 2017 = 17167 jour depuis 01/01/1970
+  float jourToAddfrom2017 = jourtoAdd - 17167;
+
+  for (int i=1; i<= (int) jourtoAdd ; i++)
+  {
+    JourMois[2] = 28 + (((annee % 4 )==0) ? 1 : 0) ;
+
+     if (jour+1 <= JourMois[mois])
+     {
+      jour++;
+     }
+     else
+     {
+      jour = 1;
+      mois++;
+     }
+     
+     if (mois>12)
+     {
+      mois = 1;
+      annee++;
+     }
+
+     //Serial.println("Nous sommes le " +  Right("00"+String(jour,DEC),2) +"/"+ Right("00"+String(mois,DEC),2) +"/"+ String(annee,DEC)); 
+   }
+
+
+   //Serial.print("HoursToAdd =");Serial.println(hourstoAdd);
+   hourstoAdd = jourtoAdd - (int) jourtoAdd;
+   monHeure = (int) (hourstoAdd * 24);
+   mesMinutes = (int) (((hourstoAdd * 24)- monHeure)*60);
+   mesSecondes = (int) ((((hourstoAdd * 24)- monHeure)*60)- mesMinutes)*60; 
+
+  rtc.setDate(jour,mois,annee);
+  rtc.setTime(monHeure,mesMinutes,mesSecondes);
+
+  Serial.println("Nous sommes le " +  Right("00"+String(jour,DEC),2) +"/"+ Right("00"+String(mois,DEC),2) +"/"+ String(annee,DEC)); 
+  Serial.println("il est  " +  Right("00"+String(monHeure,DEC),2) +":"+ Right("00"+String(mesMinutes,DEC),2) +":"+  Right("00"+String(mesSecondes,DEC),2)); 
+ 
+}
