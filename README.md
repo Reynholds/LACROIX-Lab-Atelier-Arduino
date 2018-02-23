@@ -33,7 +33,7 @@ Les effets recherchés sont de saisir l'occasion de monter en compétence en pro
 Le logiciel de programmation d'Arduino :  https://www.arduino.cc/en/Main/Software
 > La version qui nous intéresse est Arduino IDE 1.8.5
 
-Logiciel de visualisation de schéma :     http://fritzing.org/download/
+Logiciel de création de schéma de câblage :     http://fritzing.org/download/
 > Servira principalement à ceux qui souhaite modifier le câblage
 
 ### Pour la visualisation des données
@@ -42,7 +42,7 @@ Power BI : https://powerbi.microsoft.com/fr-fr/downloads/
 
 
 # Arduino (https://www.arduino.cc/en/Guide/Introduction#)
-## Qu'est-ce qu'un Arduino 
+## Qu'est-ce qu'un Arduino ?
 Un arduino est une carte électronique Open-Source, permettant de faire du développement électronique (Hardware) et logiciel (software) très facilement, comme lire l'état d'un 'bouton' en temps réel et agir sur une 'led', mais aussi lire la valeur d'un capteur de pression et poster un message sur le web.
 
 Pour faire cela, il est possible de programmer le microcontroleur de la carte Arduino, en envoyant des instructions écrites dans un langage compréhensible par l'Arduino à l'aide de l'environnement de développement associé (IDE).
@@ -61,7 +61,7 @@ Même si les cartes Arduino, sont certainement moins performantes que certaines 
 # Préparation de notre environnement de travail
 ## Installation du logiciel Arduino
 
-1- télécharge et installe Arduino 1.8.5, ainsi que tous les drivers demandés durant l'installation (Arduino USB Driver, ...)
+1- Télécharge et installe Arduino 1.8.5, ainsi que tous les drivers demandés durant l'installation (Arduino USB Driver, ...)
 
 2- Installation des modules nécessaires aux cartes MKR Fox et MKR Wan
 
@@ -69,7 +69,15 @@ Même si les cartes Arduino, sont certainement moins performantes que certaines 
   
   Chercher "WAN" > Sélectionne et installe "Arduino SAMD Boards (32 bits ARM Cortex -M0+)by Arduino", ainsi que les drivers proposés lors de l'installation (Arduino USB Driver for SAMD boards)
   
-3- Tout est prêt pour continuer
+3- Installation de la bibliothèque d'exemple LPWAN
+	
+	Via Croquis > Inclure une bibliothèque > Gérer les bibliothèques, Chercher et installer les bibliothèques :
+	- "Arduino Sigfox for MKRFox1200"
+	- "MKRWAN" 
+	- "Arduino Low Power"
+	- "RTCZero"
+
+4- Tout est prêt pour continuer
 
 # Prise en main Arduino IDE
 ## Hello blink
@@ -157,9 +165,12 @@ void loop() {
 ````
 
 
-## Fade
-En utilisant la même méthode, mets en place le programme Fade dans l'arduino
+## Fade (Variation d'intensité de la LED)
+En utilisant la même méthode, mets en place le programme Fade dans l'arduino, présent dans la bibliothèque
 ### Astuce : la Led intégrée sur la carte n'est pas forcément la numéro 9, mais est toujours la "LED_BUILTIN"
+
+# Pour bidouiller
+Essayer donc de faire un clignotant avec une variation d'intensité :)
 
 # Github
 GitHub est une plateforme de partage de "codes sources" soit de tout éléments permetant de reproduire un projet.
@@ -174,5 +185,14 @@ Il existe une façon de récupérer les sources plus propice à la collaboration
 
 
 # Répertoire de travail
-Dans notre répertoire, il 
+## Le dossier Embarquement
+Contient les éléments nécessaires pour prendre en main la carte Arduino, lui ajouter le capteur de pression et la connecter à son Back-end (LoRa ou Sigfox).
 
+## Le dossier Décollage
+Intégration des éléments dans la boite
+
+## Le dossier "Dans les Nuages"
+Vérification des données dans le Cloud Azure
+
+## Atterrissage
+Visualisation des données sur Power BI
