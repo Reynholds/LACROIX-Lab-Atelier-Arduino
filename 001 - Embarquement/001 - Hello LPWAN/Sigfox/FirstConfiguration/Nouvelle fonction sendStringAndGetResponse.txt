@@ -1,0 +1,128 @@
+
+void sendStringAndGetResponse(String str) {
+
+  int nb_byte=0;
+  String S_Timestamp ="";
+  unsigned long l_Timestamp=0;
+  
+  //Remove EOL
+  str.trim();
+  
+  // Start the module
+  SigFox.begin();
+  // Wait at least 30mS after first configuration (100mS before)
+  delay(100);
+  // Clears all pending interrupts
+  SigFox.status();
+  delay(1);
+
+  SigFox.beginPacket();
+  SigFox.print(str);
+
+  int ret = SigFox.endPacket(true);  // send buffer to SIGFOX network and wait for a response
+  if (ret > 0) {
+    Serial.println("No transmission");
+  } else {
+    Serial.println("Transmission ok");
+  }
+
+  Serial.println(SigFox.status(SIGFOX));
+  Serial.println(SigFox.status(ATMEL));
+
+  
+  if (SigFox.parsePacket()) {
+    Serial.println("Response from server:");
+    while (SigFox.available()) {
+      while (nb_byte<=3)
+      {
+        //S_Timestamp = S_Timestamp + String(SigFox.read(), HEX);
+        l_Timestamp = (SigFox.read() * pow(256,(3-nb_byte)))+l_Timestamp;
+        //Serial.println(l_Timestamp);
+        nb_byte ++;
+      }
+      Serial.print("0x");
+      Serial.println(SigFox.read(), HEX);
+      
+    }
+    SigFox.end();
+      //Récupération de la date et de l'heure
+      timestampToDate(l_Timestamp);
+      
+  } else {
+    Serial.println("Could not get any response from the server");
+    Serial.println("Check the SigFox coverage in your area");
+    Serial.println("If you are indoor, check the 20dB coverage or move near a window");
+    SigFox.end();
+  }
+
+  
+}
+
+String Right(String str, int count)
+{
+  return str.substring(str.length()-count);
+}
+
+String Left(String str, int count)
+{
+  return str.substring(1,count+1);
+}
+
+void timestampToDate (unsigned long t)
+{
+  Date madate;
+  float jourtoAdd, hourstoAdd;
+  int jour = 1;
+  int mois = 1;
+  int annee= 2017;
+  int JourMois[13]= {12 ,31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  int monHeure, mesMinutes, mesSecondes;
+  
+  // 1er Janvier 2017 = 17167 jour depuis 01/01/1970
+  jourtoAdd = t - 1483228800;
+  jourtoAdd = (float) jourtoAdd /60.0/60.0/24.0;
+  
+  // Nombre de jour depuis le 01 Janvier 2017
+  //Serial.println(String(jourtoAdd,DEC));
+
+  // Calcul des heures
+  // 1er Janvier 2017 = 17167 jour depuis 01/01/1970
+  float jourToAddfrom2017 = jourtoAdd - 17167;
+
+  for (int i=1; i<= (int) jourtoAdd ; i++)
+  {
+    JourMois[2] = 28 + (((annee % 4 )==0) ? 1 : 0) ;
+
+     if (jour+1 <= JourMois[mois])
+     {
+      jour++;
+     }
+     else
+     {
+      jour = 1;
+      mois++;
+     }
+     
+     if (mois>12)
+     {
+      mois = 1;
+      annee++;
+     }
+
+     //Serial.println("Nous sommes le " +  Right("00"+String(jour,DEC),2) +"/"+ Right("00"+String(mois,DEC),2) +"/"+ String(annee,DEC)); 
+   }
+
+
+   //Serial.print("HoursToAdd =");Serial.println(hourstoAdd);
+   hourstoAdd = jourtoAdd - (int) jourtoAdd;
+   monHeure = (int) (hourstoAdd * 24);
+   mesMinutes = (int) (((hourstoAdd * 24)- monHeure)*60);
+   mesSecondes = (int) ((((hourstoAdd * 24)- monHeure)*60)- mesMinutes)*60; 
+
+  rtc.setDate(jour,mois,annee);
+  rtc.setTime(monHeure,mesMinutes,mesSecondes);
+
+  Serial.println("Nous sommes le " +  Right("00"+String(jour,DEC),2) +"/"+ Right("00"+String(mois,DEC),2) +"/"+ String(annee,DEC)); 
+  Serial.println("il est  " +  Right("00"+String(monHeure, DEC),2) +":"+ Right("00"+String(mesMinutes, DEC),2) +":"+  Right("00"+String(mesSecondes,DEC),2)); 
+ 
+}
