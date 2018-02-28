@@ -1,0 +1,25 @@
+-- IoT Hub --
+Chaine de connexion Chaine de connexion : 
+HostName=LACROIXIoTHub.azure-devices.net;SharedAccessKeyName=iothubownerPoCFactory;SharedAccessKey=2cw73sFZQCT2uuvw0MKd1B5hzIAfIZvcUz6DtOsjhos=
+
+Format des données reçues de Sigfox
+{
+  "device": "1CFBB1",
+  "data": "120000000000",
+  "temperature": "18",
+  "pression": "0.0",
+  "time": 1519830982,
+  "duplicate": false,
+  "snr": 18.6,
+  "station": "1DFE",
+  "avgSignal": 38.52,
+  "lat": 48,
+  "lng": -2,
+  "rssi": -133,
+  "seqNumber": 339
+}
+
+Storage table : 
+URL : https://lacroixiothubstorage.table.core.windows.net
+
+Key : eq8zsGgxN0Y9iu8oo5JoaGKkHyCmT5K4E90yKo9ZfMR7Jh0EHDaBIfRjgbKixHAmYxIrycFIw0enQjjFHFrDRw==
