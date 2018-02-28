@@ -1,0 +1,430 @@
+/*
+  Sleep RTC Alarm for Arduino Zero
+
+  Demonstrates the use an alarm to wake up an Arduino zero from Standby mode
+
+  This example code is in the public domain
+
+  http://arduino.cc/en/Tutorial/SleepRTCAlarm
+
+  created by Arturo Guadalupi
+  17 Nov 2015
+  modified
+  01 Mar 2016
+
+  NOTE:
+  If you use this sketch with a MKR1000 you will see no output on the serial monitor.
+  This happens because the USB clock is stopped so it the USB connection is stopped too.
+  **To see again the USB port you have to double tap on the reset button!**
+*/
+
+/*################## Déclaration des bibliothèques ###################*/
+
+
+
+//Bibliothéque nécessaire au bon fonctionnement du programme
+#include <RTCZero.h>
+#include <SigFox.h>
+
+// Définition de constantes servant à faire des conversions
+#define UINT16_t_MAX  65536
+#define INT16_t_MAX   UINT16_t_MAX/2
+
+/*################## Déclaration des Variables  ###################*/
+//Définition de la structure pour gérer le calendrier
+struct Date {
+  int _jour;
+  int _mois;
+  int _annee;
+  int _heure;
+  int _minute;
+  int _seconde;
+  String DateString;
+};
+
+// structure d'émission de donnée
+// associée au custom payload sigfox : temperature:0:int:16:little-endian pression:2:float:32:little-endian
+typedef struct __attribute__ ((packed)) sigfox_message {
+  int16_t moduleTemperature;
+  float CNPRpression;
+} SigfoxMessage;
+
+//Variable contenant le message à envoyer
+SigfoxMessage msg;
+
+// Création d'un objet pour mémoriser la date et l'heure
+RTCZero rtc;
+
+// Variables pour mémoriser l'heure
+byte seconds = 0;
+byte minutes = 00;
+byte hours = 17;
+
+
+// Variables liées à la LED intégrée
+const int ledPin =  LED_BUILTIN;// Numéro de la pin de la LED
+int ledstate = HIGH;            // Etat de la LED
+
+// Variables liées au capteur de la pression
+const int SupplySensorPin = 6;  // Pin commandant le Transistor pour alimenter le capteur de pression
+int sensorPin = A0;             // Pin où est branchée le capteur de pression
+int sensorValue = 0;            // Variable mesurant la tension du capteur de pression
+float pression = 0;
+float ConversionTensionPression = 16/((1024/3.3)*(150*0.02));      //Tension max possible pour 
+
+
+// Variables nécessaires au fonctionnement du programme:
+int etape = 0;                  // étape du programme
+
+
+/*###################### Initialisation    ########################*/
+void setup()
+{
+  // Initialisation de l'horloge
+  rtc.begin();
+
+  // Initialisation de la liaison série
+  Serial.begin(9600);
+  Serial.println("Début Initialisation ...");
+
+  // Initialisation de la LED et de la pin pilotant le transistor
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(SupplySensorPin, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(SupplySensorPin, HIGH);
+
+
+  // Initialisation de la liaison Sigfox
+  if (!SigFox.begin()) {
+    Serial.println("Shield error or not present!");
+    return;
+  }
+  // Enable debug led and disable automatic deep sleep
+  // Comment this line when shipping your project :)
+  //SigFox.debug(); //  <--------- Ne pas oublier de commenter cette ligne à la toute fin du projet
+
+  // Récupération des informations Sigfox
+  String version = SigFox.SigVersion();
+  String ID = SigFox.ID();
+  String PAC = SigFox.PAC();
+
+  // Récupération de la valeur du capteur de pression et conversion en entier
+  delay(3000);
+  sensorValue = analogRead(sensorPin);
+  pression = sensorValue * ConversionTensionPression;
+  msg.CNPRpression = pression;
+
+  // Récupération de la température interne du capteur Sigfox
+  msg.moduleTemperature = SigFox.internalTemperature();
+
+
+  // Envoi des données et attente d'une réponse pour récupérer l'heure
+  sendStringAndGetResponse();
+
+  // Send the module to the deepest sleep
+  SigFox.end();
+
+
+
+  //Clignotement de la Led pour informer de l'envoi du message
+  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(SupplySensorPin, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(SupplySensorPin, LOW);
+
+  // Préparation du prochain réveil
+  alarmMatch();
+  rtc.attachInterrupt(alarmMatch);
+
+  // Message série indiquant que l'initialisation s'est bien passée.
+  Serial.println("\t\tInitialisation Ok");
+}
+
+
+/*#################### Boucle sans fin ###################*/
+void loop()
+{
+  Serial.println("Boucle principale ...");
+  // Machine à état
+  switch (etape)
+  {
+    case 0: //sommeil
+      etape = 1;
+      Serial.println("Prochaine étape : Alimentation Capteur, passage en sommeil ...");
+      rtc.standbyMode(); // Sleep until next alarm match
+      break;
+
+    case 1 : //Alimentation capteur
+      etape = 2;
+      digitalWrite(LED_BUILTIN, HIGH);
+      digitalWrite(SupplySensorPin, HIGH);
+
+      rtc.standbyMode(); // Sleep until next alarm match
+      break;
+
+    case 2 : //Emission
+      etape = 0;
+      // BLABLA
+      if (!SigFox.begin()) {
+        // Serial.println("Shield error or not present!");
+      }
+      // read the value from the sensor:
+      // Récupération de la valeur du capteur de pression et conversion en entier
+      sensorValue = analogRead(sensorPin);
+      pression = sensorValue * ConversionTensionPression;
+      msg.CNPRpression = pression;
+      msg.moduleTemperature = SigFox.internalTemperature();
+      
+      // Envoi du message
+      sendString();
+
+      digitalWrite(LED_BUILTIN, LOW);
+      digitalWrite(SupplySensorPin, LOW);
+
+      alarmMatch();
+      break;
+
+    default :
+      etape = 0;
+      alarmMatch();
+  }
+}
+
+
+
+void alarmMatch()
+{
+  int AlarmM = 0;
+  Serial.println("Gestionnaire d'alarme ... Etape : " + String(etape, DEC));
+  switch (etape)
+  {
+    case 0: //sommeil - Calcul du prochain réveil
+    
+      /*for (int i = 0; i <= 60; i + 15)
+      {
+        if (rtc.getMinutes() <= (i - 1))
+        {
+          AlarmM = i;
+        }
+        AlarmM = ((AlarmM >= 60) ? 0 : AlarmM);
+      }
+      */
+                  if (rtc.getMinutes() <= 00)
+                  {
+                   AlarmM = 15;
+                  }
+                  else if (rtc.getMinutes() >= 0 && rtc.getMinutes() < 15 )
+                  {
+                   AlarmM = 15;
+                  }
+                  else if (rtc.getMinutes() >= 15 && rtc.getMinutes() < 30 )
+                  {
+                    AlarmM = 30;
+                  }
+                  else if (rtc.getMinutes() >= 30 && rtc.getMinutes() < 45 )
+                  {
+                    AlarmM = 45;
+                  }
+                  else
+
+                  {
+                    AlarmM = 0;
+                  }
+      
+      rtc.setAlarmMinutes(AlarmM);
+      rtc.setAlarmSeconds(00);
+      rtc.enableAlarm(rtc.MATCH_MMSS);
+
+      Serial.println("Alarme de réveil prévu à hh:" + Right(String(AlarmM, DEC), 2) + ":00");
+      break;
+
+    case 1 : //Alimentation capteur 5 secondes avant la mesure
+
+      seconds = rtc.getSeconds() + 5;
+      seconds = ((seconds >= 60) ? seconds - 60 : seconds);
+
+      rtc.setAlarmSeconds(seconds);
+      rtc.enableAlarm(rtc.MATCH_SS);
+
+      Serial.println("Alarme de réveil prévu à hh:mm:" + Right(String(seconds), 2));
+      break;
+
+    case 2 : //Emission
+      break;
+  }
+
+}
+
+
+/* ####################### Fonctions utilisées ############################*/
+
+// Fonction d'envoi de message sans lecture de l'heure
+void sendString() {
+  //Suppression des caractères de fin de ligne
+
+
+  // Démarrage du module Sigfox
+  SigFox.begin();
+  // Attente du réveil du module
+  delay(30);
+
+  // Suppression des interuptions en attente
+  SigFox.status();
+  delay(1);
+
+  // Préparation et envoi du message
+  SigFox.beginPacket();
+  SigFox.write((uint8_t*)&msg, 6);
+
+  // Vérification si le message est bien parti
+  int ret = SigFox.endPacket();  // send buffer to SIGFOX network
+  if (ret > 0) {
+    Serial.println("No transmission");
+  } else {
+    Serial.println("Transmission ok");
+  }
+
+  // Affichage du statut du message
+  Serial.println(SigFox.status(SIGFOX));
+  Serial.println(SigFox.status(ATMEL));
+  SigFox.end();
+}
+
+
+// Fonction d'envoi de message sans lecture de l'heure
+void sendStringAndGetResponse() {
+
+  // Variable pour le calcul de l'heure
+  int nb_byte = 0;
+  String S_Timestamp = "";
+  unsigned long l_Timestamp = 0;
+
+
+  // Démarrage du module Sigfox
+  SigFox.begin();
+  // Attente du réveil du module
+  delay(100);
+  // Suppression des interuptions en attente
+  SigFox.status();
+  delay(1);
+
+  // Préparation et envoi du message
+  SigFox.beginPacket();
+  SigFox.write((uint8_t*)&msg, 6);
+
+  // Vérification si le message est bien parti
+  int ret = SigFox.endPacket(true);  // send buffer to SIGFOX network and wait for a response
+  if (ret > 0) {
+    Serial.println("No transmission");
+  } else {
+    Serial.println("Transmission ok");
+  }
+
+  // Affichage du statut du message
+  Serial.println(SigFox.status(SIGFOX));
+  Serial.println(SigFox.status(ATMEL));
+
+  // Lecture du message reçu de la part de Sigfox
+  if (SigFox.parsePacket()) {
+    Serial.println("Response from server:");
+
+    while (SigFox.available()) {
+      // Les 4 premiers octets sont la date en Timestamp
+      while (nb_byte <= 3)
+      {
+        l_Timestamp = (SigFox.read() * pow(256, (3 - nb_byte))) + l_Timestamp;
+        nb_byte ++;
+      }
+      // Affichage des autres octets
+      Serial.print("0x");
+      Serial.println(SigFox.read(), HEX);
+    }
+
+    SigFox.end();
+
+    //Transformation du Timestamp en date + heure
+    timestampToDate(l_Timestamp);
+
+  }
+  else
+  {
+    Serial.println("Could not get any response from the server");
+    Serial.println("Check the SigFox coverage in your area");
+    Serial.println("If you are indoor, check the 20dB coverage or move near a window");
+    SigFox.end();
+  }
+
+
+}
+//Fonction permettant de ne conserver qu'un certain nombre de caractères à droite
+String Right(String str, int count)
+{
+  return str.substring(str.length() - count);
+}
+
+//Fonction permettant de ne conserver qu'un certain nombre de caractères à gauche
+String Left(String str, int count)
+{
+  return str.substring(1, count + 1);
+}
+
+//Fonction incroyablement compliquée transformant le timestamp en date, soyez indulgants ...
+void timestampToDate (unsigned long t)
+{
+  Date madate;
+  float jourtoAdd, hourstoAdd;
+  int jour = 1;
+  int mois = 1;
+  int annee = 2017;
+  int JourMois[13] = {12 , 31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  int monHeure, mesMinutes, mesSecondes;
+
+  // 1er Janvier 2017 = 17167 jour depuis 01/01/1970
+  jourtoAdd = t - 1483228800;
+  jourtoAdd = (float) jourtoAdd / 60.0 / 60.0 / 24.0;
+
+  // Nombre de jour depuis le 01 Janvier 2017
+  //Serial.println(String(jourtoAdd,DEC));
+
+  // Calcul des heures
+  // 1er Janvier 2017 = 17167 jour depuis 01/01/1970
+  float jourToAddfrom2017 = jourtoAdd - 17167;
+
+  for (int i = 1; i <= (int) jourtoAdd ; i++)
+  {
+    JourMois[2] = 28 + (((annee % 4 ) == 0) ? 1 : 0) ;
+
+    if (jour + 1 <= JourMois[mois])
+    {
+      jour++;
+    }
+    else
+    {
+      jour = 1;
+      mois++;
+    }
+
+    if (mois > 12)
+    {
+      mois = 1;
+      annee++;
+    }
+
+    //Serial.println("Nous sommes le " +  Right("00"+String(jour,DEC),2) +"/"+ Right("00"+String(mois,DEC),2) +"/"+ String(annee,DEC));
+  }
+
+
+  //Serial.print("HoursToAdd =");Serial.println(hourstoAdd);
+  hourstoAdd = jourtoAdd - (int) jourtoAdd;
+  monHeure = (int) (hourstoAdd * 24);
+  mesMinutes = (int) (((hourstoAdd * 24) - monHeure) * 60);
+  mesSecondes = (int) ((((hourstoAdd * 24) - monHeure) * 60) - mesMinutes) * 60;
+
+  rtc.setDate(jour, mois, annee);
+  rtc.setTime(monHeure, mesMinutes, mesSecondes);
+
+  Serial.println("Nous sommes le " +  Right("00" + String(jour, DEC), 2) + "/" + Right("00" + String(mois, DEC), 2) + "/" + String(annee, DEC));
+  Serial.println("il est  " +  Right("00" + String(rtc.getHours(), DEC), 2) + ":" + Right("00" + String(rtc.getMinutes(), DEC), 2) + ":" +  Right("00" + String(mesSecondes, DEC), 2));
+
+}
