@@ -63,13 +63,13 @@ Même si les cartes Arduino, sont certainement moins performantes que certaines 
 
 1- Télécharge et installe Arduino 1.8.5, ainsi que tous les drivers demandés durant l'installation (Arduino USB Driver, ...)
 
-2- Installation des modules nécessaires aux cartes MKR Fox et MKR Wan
+2- En mode administrateur, installation des modules nécessaires aux cartes MKR Fox et MKR Wan
 
   Via Outils > Type de cartes > Gestionnaire de carte
   
   Chercher "WAN" > Sélectionne et installe "Arduino SAMD Boards (32 bits ARM Cortex -M0+)by Arduino", ainsi que les drivers proposés lors de l'installation (Arduino USB Driver for SAMD boards)
   
-3- Installation de la bibliothèque d'exemple LPWAN
+3- Toujours en mode administrateur, installation de la bibliothèque d'exemple LPWAN
 	
 	Via Croquis > Inclure une bibliothèque > Gérer les bibliothèques, Chercher et installer les bibliothèques :
 	- "Arduino Sigfox for MKRFox1200"
