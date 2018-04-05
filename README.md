@@ -196,3 +196,7 @@ Vérification des données dans le Cloud Azure
 
 ## Atterrissage
 Visualisation des données sur Power BI
+
+## Autres
+Le dossier Autres contient les éléments ajoutés/corrigés/améliorés produits durant l'atelier :
+- Programme du pluviométre sur un Arduino Sigfox permettant de compter le nombre d'impulsion de l'auget, il faudrait compléter en ajoutant le schéma de cablâge à réaliser sur fritzing. (réalisé par Thomas JANVIER et Arnaud POIRIER
